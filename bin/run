@@ -9,8 +9,26 @@ def reset_database
   Song.create(name: "Hello", album: "25")
   Song.create(name: "99 Problems", album: "The Black Album")
 end
-
+def self.new_from_db(row)
+  self.new(id: row[0], name: row[1], album: row[2])
+end
 reset_database
-
-binding.pry
+def self.all
+  sql = <<-SQL
+    SELECT *
+    FROM songs
+  SQL
+  DB[:conn].execute(sql)
+end
+def self.find_by_name(name)
+  sql = <<-SQL
+    SELECT *
+    FROM songs
+    WHERE name = ?
+    LIMIT 1
+  SQL
+  DB[:conn].execute(sql, name).map do |row|
+    self.new_from_db(row)
+  end.first
+end
 "pls"
